@@ -15,6 +15,9 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -26,13 +29,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetContract.PetEntry;
+import com.example.android.pets.data.PetDbHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
  */
 public class EditorActivity extends AppCompatActivity {
+  PetDbHelper helper = new PetDbHelper(this);
 
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
@@ -119,7 +126,7 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+               insertPet();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -132,5 +139,27 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void insertPet(){
+        SQLiteDatabase db = helper.getWritableDatabase();;
+        String name = mNameEditText.getText().toString().trim();
+        String breed= mBreedEditText.getText().toString().trim();
+        String gender = String.valueOf(mGender);
+        String weight = mWeightEditText.getText().toString();
+        ContentValues values = new ContentValues();
+        values.put(PetEntry.COLUMN_NAME,name);
+        values.put(PetEntry.COLUMN_BREED,breed);
+        values.put(PetEntry.COLUMN_GENDER,gender);
+        values.put(PetEntry.COLUMN_WEIGHT,weight);
+
+        long newRow = db.insert(PetEntry.TABLE_NAME,null,values);
+        Intent intent = new Intent(EditorActivity.this,CatalogActivity.class);
+        startActivity(intent);
+        if (newRow == -1){
+            Toast.makeText(EditorActivity.this,"There was a problem inserting data",Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(EditorActivity.this,"Your pet was inserted under the ID: "+newRow,Toast.LENGTH_LONG).show();
+        }
+
     }
 }

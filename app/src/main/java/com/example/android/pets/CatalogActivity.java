@@ -15,6 +15,7 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -34,15 +35,12 @@ import com.example.android.pets.data.PetDbHelper;
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
-
+String TAG ="CatalogActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-        Log.i("Creating T","log table: "+"CREATE TABLE "+PetEntry.TABLE_NAME+"( "
-                +PetEntry._ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"
-                +PetEntry.COLUMN_NAME+" TEXT NOT NULL,"+PetEntry.COLUMN_BREED
-                +" TEXT,"+PetEntry.COLUMN_GENDER+" TEXT, "+PetEntry.COLUMN_WEIGHT+" INTEGER);");
+
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -82,7 +80,24 @@ public class CatalogActivity extends AppCompatActivity {
             cursor.close();
         }
     }
+    @Override
+    public void onStart(){
+        super.onStart();
+        displayDatabaseInfo();
+    }
+    private void insertDummyData(){
+        PetDbHelper helper = new PetDbHelper(this);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(PetEntry.COLUMN_NAME,"akira");
+        values.put(PetEntry.COLUMN_BREED,"Callejera");
+        values.put(PetEntry.COLUMN_GENDER,PetEntry.GENDER_FEMALE);
+        values.put(PetEntry.COLUMN_WEIGHT,"10 kg");
 
+        long newRow = db.insert(PetEntry.TABLE_NAME,null,values);
+        Log.i(TAG,"was inserted into row number: "+newRow);
+        displayDatabaseInfo();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_catalog.xml file.
@@ -97,7 +112,7 @@ public class CatalogActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                // Do nothing for now
+                insertDummyData();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
