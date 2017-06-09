@@ -1,11 +1,15 @@
 package com.example.android.pets.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
+import com.example.android.pets.data.PetContract.PetEntry;
 /**
  * Created by leosantana on 07/06/17.
  */
@@ -14,6 +18,15 @@ public class PetProvider extends ContentProvider {
     /** Tag for the log messages */
     public static final String LOG_TAG = PetProvider.class.getSimpleName();
     PetDbHelper helper;
+    public static final int PETS = 100;
+    public static final int PETS_ID = 101;
+
+    public static UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    static {
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY,PetContract.PATH_PETS,PETS);
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY,PetContract.PATH_PETS+"/#",PETS_ID);
+    }
     /**
      * Initialize the provider and the database helper object.
      */
@@ -30,7 +43,24 @@ public class PetProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
-        return null;
+        SQLiteDatabase database = helper.getReadableDatabase();
+        //to hold the database result
+        Cursor cursor;
+
+        int match = sUriMatcher.match(uri);
+        switch (match){
+            case PETS:
+                cursor=database.query(PetEntry.TABLE_NAME,projection,selection,selectionArgs,null,null,sortOrder);
+                Log.i("PetProvider","in the case PETS");
+                break;
+            case PETS_ID:
+                selection=PetEntry._ID+"=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor=database.query(PetEntry.TABLE_NAME,projection,selection,selectionArgs,null,null,sortOrder);
+                break;
+            default: throw new IllegalArgumentException("Uri desconocida :"+uri);
+        }
+        return cursor;
     }
 
     /**
@@ -38,6 +68,8 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
+        
+
         return null;
     }
 

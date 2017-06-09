@@ -60,9 +60,6 @@ String TAG ="CatalogActivity";
      * the pets database.
      */
     private void displayDatabaseInfo() {
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
         String projection[] ={
                 PetEntry._ID,
                 PetEntry.COLUMN_NAME,
@@ -72,7 +69,16 @@ String TAG ="CatalogActivity";
         String selection = null;
         String selectionArgs[] = null;
 
-        Cursor cursor = db.query(PetEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+        /*Cursor cursor = db.query(PetEntry.TABLE_NAME,
+                                 projection, selection,
+                                 selectionArgs,
+                                 null,
+                                 null,
+                                 null);
+        */
+        Cursor cursor =
+        getContentResolver().query(PetEntry.CONTENT_URI,projection,selection,selectionArgs,null);
+
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
         try {
             // Create a header in the Text View that looks like this:
