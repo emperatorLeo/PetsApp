@@ -44,7 +44,9 @@ String TAG ="CatalogActivity";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-
+        lista = (ListView)findViewById(R.id.list_view_pet);
+        View view = findViewById(R.id.holder);
+        lista.setEmptyView(view);
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -76,7 +78,7 @@ String TAG ="CatalogActivity";
         Cursor cursor =
         getContentResolver().query(PetEntry.CONTENT_URI,projection,selection,selectionArgs,null);
 
-        lista = (ListView)findViewById(R.id.list_view_pet);
+
         PetCursorAdapter adapter = new PetCursorAdapter(this,cursor);
         lista.setAdapter(adapter);
         adapter.changeCursor(cursor);
