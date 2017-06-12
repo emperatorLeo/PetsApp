@@ -4,12 +4,16 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.android.pets.R;
 import com.example.android.pets.data.PetContract.PetEntry;
+
 /**
  * Created by leosantana on 07/06/17.
  */
@@ -68,11 +72,36 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
+        final int match = sUriMatcher.match(uri);
 
+        switch (match) {
+            case PETS:
+                return insertPet(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
 
-        return null;
     }
 
+    /**
+     * Insert a pet into the database with the given content values. Return the new content URI
+     * for that specific row in the database.
+     */
+    private Uri insertPet(Uri uri, ContentValues values) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+      //we obtaind the values through the contentValues and we past it to the method
+        long id = db.insert(PetEntry.TABLE_NAME,null,values);
+        Resources res = getContext().getResources();
+
+        if (id == -1){
+            Toast.makeText(getContext(),R.string.not_saved,Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(getContext(),res.getString(R.string.saved,id),Toast.LENGTH_LONG).show();
+        }
+        // Once we know the ID of the new row in the table,
+        // return the new URI with the ID appended to the end of it
+        return ContentUris.withAppendedId(uri, id);
+    }
     /**
      * Updates the data at the given selection and selection arguments, with the new ContentValues.
      */

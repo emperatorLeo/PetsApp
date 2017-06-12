@@ -18,11 +18,10 @@ package com.example.android.pets;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,13 +68,6 @@ String TAG ="CatalogActivity";
         String selection = null;
         String selectionArgs[] = null;
 
-        /*Cursor cursor = db.query(PetEntry.TABLE_NAME,
-                                 projection, selection,
-                                 selectionArgs,
-                                 null,
-                                 null,
-                                 null);
-        */
         Cursor cursor =
         getContentResolver().query(PetEntry.CONTENT_URI,projection,selection,selectionArgs,null);
 
@@ -131,16 +123,12 @@ String TAG ="CatalogActivity";
         displayDatabaseInfo();
     }
     private void insertDummyData(){
-        PetDbHelper helper = new PetDbHelper(this);
-        SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(PetEntry.COLUMN_NAME,"akira");
         values.put(PetEntry.COLUMN_BREED,"Callejera");
         values.put(PetEntry.COLUMN_GENDER,PetEntry.GENDER_FEMALE);
         values.put(PetEntry.COLUMN_WEIGHT,"10 kg");
-
-        long newRow = db.insert(PetEntry.TABLE_NAME,null,values);
-        Log.i(TAG,"was inserted into row number: "+newRow);
+        Uri newUri = getContentResolver().insert(PetEntry.CONTENT_URI,values);
         displayDatabaseInfo();
     }
     @Override
